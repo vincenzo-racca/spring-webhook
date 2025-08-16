@@ -20,10 +20,9 @@ public class ClientController {
         this.webhookServerService = webhookServerService;
     }
 
-    @PutMapping("{clientId}")
-    public ResponseEntity<ClientRegistration> registerClient(@PathVariable String clientId,
-                                                             @RequestBody ClientRegistrationRequest request) {
-        var client = webhookServerService.registerClient(clientId, request);
+    @PostMapping
+    public ResponseEntity<ClientRegistration> registerClient(@RequestBody ClientRegistrationRequest request) {
+        var client = webhookServerService.registerClient(request);
         return ResponseEntity.ok(client);
     }
 

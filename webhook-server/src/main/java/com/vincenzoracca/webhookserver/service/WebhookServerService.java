@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class WebhookServerService {
 
@@ -27,10 +29,11 @@ public class WebhookServerService {
     }
 
 
-    public ClientRegistration registerClient(String clientId, ClientRegistrationRequest request) {
+    public ClientRegistration registerClient(ClientRegistrationRequest request) {
         String secret = securityServerUtil.newSecret();
+        String webhookId = UUID.randomUUID().toString();
         var registration = new ClientRegistration(
-                clientId,
+                webhookId,
                 request.callbackUrl(),
                 secret, request.eventFilter());
         clientRegistrationDao.insert(registration);
@@ -40,7 +43,7 @@ public class WebhookServerService {
     public void sendEvent(ShipmentEvent event) {
         clientRegistrationDao.findAllByEventFilters(EventFilter.valueOf(event.status().name()))
                 .forEach(client -> {
-                    log.info("Sending {} to client {}", event, client.clientId());
+                    log.info("Sending {} to client {}", event, client.webhookId());
                     SecurityServerUtil.SigHeaders sign = securityServerUtil.sign(client.secret(), event);
                     invokeClient(client.callbackUrl(), sign.timestamp(), sign.signature(), event);
                 });

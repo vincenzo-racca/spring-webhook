@@ -1,6 +1,5 @@
 package com.vincenzoracca.webhookclient.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 
@@ -17,21 +16,16 @@ public class SecurityClientUtil {
     private static final String HMAC_ALGO = "HmacSHA256";
     private static final Duration TOLETANCE_MINUTES = Duration.ofMinutes(5);
 
-    private final ObjectMapper mapper;
-
-    public SecurityClientUtil(ObjectMapper mapper) {
-        this.mapper = mapper;
-    }
 
     public boolean isInToleranceTime(long requestTimestamp) {
         long now = Instant.now().toEpochMilli();
-        var delayNow = Instant.ofEpochMilli(now).plus(10, ChronoUnit.MINUTES).toEpochMilli();
-        return delayNow - requestTimestamp <= TOLETANCE_MINUTES.toMillis();
+//        var delayNow = Instant.ofEpochMilli(now).plus(10, ChronoUnit.MINUTES).toEpochMilli();
+//        return delayNow - requestTimestamp <= TOLETANCE_MINUTES.toMillis();
+        return now - requestTimestamp <= TOLETANCE_MINUTES.toMillis();
     }
 
-    public boolean verifySignature(String secret, long requestTimestamp, Object body, String signature) {
-        var bodyJson = toJson(body);
-        String expected = "sha256=" + hmacSha256(secret, requestTimestamp + "\n" + bodyJson);
+    public boolean verifySignature(String secret, long requestTimestamp, String rawBody, String signature) {
+        String expected = "sha256=" + hmacSha256(secret, requestTimestamp + "\n" + rawBody);
         return expected.equals(signature);
     }
 
@@ -45,14 +39,6 @@ public class SecurityClientUtil {
             return sb.toString();
         } catch (Exception e) {
             throw new IllegalStateException("HMAC error", e);
-        }
-    }
-
-    private String toJson(Object value) {
-        try {
-            return mapper.writeValueAsString(value);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
         }
     }
 }

@@ -20,7 +20,7 @@ public class ClientRegistrationInMemoryDao implements ClientRegistrationDao {
 
     @Override
     public void insert(ClientRegistration registration) {
-        var client = CLIENTS_DB.putIfAbsent(registration.clientId(), registration);
+        var client = CLIENTS_DB.putIfAbsent(registration.webhookId(), registration);
         if (client != null) {
             throw new IllegalArgumentException("Client already exists");
         }

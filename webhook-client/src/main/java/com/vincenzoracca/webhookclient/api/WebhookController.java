@@ -1,5 +1,7 @@
 package com.vincenzoracca.webhookclient.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vincenzoracca.webhookclient.model.ShipmentEvent;
 import com.vincenzoracca.webhookclient.service.WebhookClientService;
 import com.vincenzoracca.webhookclient.util.SecurityClientUtil;
@@ -15,27 +17,30 @@ public class WebhookController {
 
     private final WebhookClientService webhookClientService;
     private final SecurityClientUtil securityClientUtil;
+    private final ObjectMapper objectMapper;
 
     public WebhookController(WebhookClientService webhookClientService,
-                             SecurityClientUtil securityClientUtil) {
+                             SecurityClientUtil securityClientUtil, ObjectMapper objectMapper) {
         this.webhookClientService = webhookClientService;
         this.securityClientUtil = securityClientUtil;
+        this.objectMapper = objectMapper;
     }
 
     @PostMapping
     public ResponseEntity<Void> consumeEvent(
             @RequestHeader("X-Timestamp") long requestTimestamp,
             @RequestHeader("X-Signature") String signature,
-            @RequestBody ShipmentEvent event) {
+            @RequestBody String rawBody) throws JsonProcessingException {
 
         if(! securityClientUtil.isInToleranceTime(requestTimestamp)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        if(! securityClientUtil.verifySignature(SECRET, requestTimestamp, event, signature)) {
+        if(! securityClientUtil.verifySignature(SECRET, requestTimestamp, rawBody, signature)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        var event = objectMapper.readValue(rawBody, ShipmentEvent.class);
         webhookClientService.consumeEvent(event);
         return ResponseEntity.accepted().build();
     }

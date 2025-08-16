@@ -2,7 +2,7 @@ package com.vincenzoracca.webhookserver.model;
 
 
 public record ClientRegistration(
-        String clientId,
+        String webhookId,
         String callbackUrl,
         String secret,
         EventFilter eventFilter
@@ -11,7 +11,7 @@ public record ClientRegistration(
     @Override
     public String toString() {
         return "ClientRegistration{" +
-                "clientId='" + clientId + '\'' +
+                "webhookId='" + webhookId + '\'' +
                 ", callbackUrl='" + callbackUrl + '\'' +
                 ", eventFilter=" + eventFilter +
                 '}';
