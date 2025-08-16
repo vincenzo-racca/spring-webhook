@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +16,7 @@ public class ClientRegistrationInMemoryDao implements ClientRegistrationDao {
 
     private static final Logger log = LoggerFactory.getLogger(ClientRegistrationInMemoryDao.class);
 
-    private static final Map<String, ClientRegistration> CLIENTS_DB = new HashMap<>();
+    private static final Map<String, ClientRegistration> CLIENTS_DB = new ConcurrentHashMap<>();
 
     @Override
     public void insert(ClientRegistration registration) {

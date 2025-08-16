@@ -17,7 +17,7 @@ public class WebhookClientService {
         this.shipmentEventDao = shipmentEventDao;
     }
 
-    public void consumerEvent(ShipmentEvent event) {
+    public void consumeEvent(ShipmentEvent event) {
         ShipmentEvent oldValue = shipmentEventDao.putIfAbsent(event);
         if(oldValue == null) {
             log.info("Shipment event {} has been saved", event);

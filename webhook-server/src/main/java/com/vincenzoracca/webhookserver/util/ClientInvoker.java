@@ -16,13 +16,13 @@ public class ClientInvoker {
     }
 
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000))
-    public boolean invoke(String url, ShipmentEvent event) {
-        return Boolean.TRUE.equals(restClient.post()
+    public void invoke(String url, long timestamp, String signature, ShipmentEvent event) {
+        restClient.post()
                 .uri(url)
+                .header("X-Timestamp", String.valueOf(timestamp))
+                .header("X-Signature", signature)
                 .body(event)
-                .exchange((request, response) -> !response.getStatusCode().isError()));
-
-
+                .retrieve().toBodilessEntity();
 
     }
 }
