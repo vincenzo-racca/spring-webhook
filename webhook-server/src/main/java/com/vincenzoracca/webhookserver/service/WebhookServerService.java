@@ -42,9 +42,18 @@ public class WebhookServerService {
                 .forEach(client -> {
                     log.info("Sending {} to client {}", event, client.clientId());
                     SecurityServerUtil.SigHeaders sign = securityServerUtil.sign(client.secret(), event);
-                    clientInvoker.invoke(client.callbackUrl(), sign.timestamp(), sign.signature(), event);
-                    // you can catch the exception to handle it for every client
+                    invokeClient(client.callbackUrl(), sign.timestamp(), sign.signature(), event);
                 });
+    }
+
+    private void invokeClient(String callbackUrl, long timestamp, String signature, ShipmentEvent event) {
+        try {
+            clientInvoker.invoke(callbackUrl, timestamp,signature, event);
+        }
+        catch (Exception e) {
+            log.error("Error while invoking client {}", event, e);
+            // handle with custom logic
+        }
     }
 
 }

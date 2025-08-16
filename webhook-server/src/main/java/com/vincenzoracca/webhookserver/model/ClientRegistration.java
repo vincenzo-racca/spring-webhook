@@ -8,6 +8,15 @@ public record ClientRegistration(
         EventFilter eventFilter
 ) {
 
+    @Override
+    public String toString() {
+        return "ClientRegistration{" +
+                "clientId='" + clientId + '\'' +
+                ", callbackUrl='" + callbackUrl + '\'' +
+                ", eventFilter=" + eventFilter +
+                '}';
+    }
+
     public enum EventFilter {
         ALL,
         COMPLETED,

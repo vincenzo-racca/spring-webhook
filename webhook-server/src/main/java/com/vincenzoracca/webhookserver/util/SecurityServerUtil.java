@@ -29,7 +29,7 @@ public class SecurityServerUtil {
 //        byte[] buf = new byte[DEFAULT_NUM_BYTES];
 //        RNG.nextBytes(buf);
 //        return Base64.getUrlEncoder().withoutPadding().encodeToString(buf);
-        return "secret";
+        return "secret"; // secret mocked
     }
 
     public SigHeaders sign(String secret, Object value) {

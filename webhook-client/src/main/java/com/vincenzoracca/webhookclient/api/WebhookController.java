@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("webhook")
 public class WebhookController {
 
-    private static final String SECRET = "secret";
+    private static final String SECRET = "secret"; // secret mocked
 
     private final WebhookClientService webhookClientService;
     private final SecurityClientUtil securityClientUtil;
