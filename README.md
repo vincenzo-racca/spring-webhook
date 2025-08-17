@@ -10,7 +10,7 @@ Unlike Pub/Sub brokers, here the producer calls consumers directly via **HTTP ca
 
 This project is a companion demo for my book [Spring Boot 3 API Mastery](https://amzn.to/41LwDqN).
 - In the book, I focus more on Publisher/Subscriber patterns (Kafka, async).
-- Here, the blog/demo complements it by showing Webhooks as a simpler alternative.
+- Here, the blog/demo complements it by showing Webhooks as a simpler alternative: [Webhook with Spring Boot](https://www.vincenzoracca.com/en/blog/framework/spring/spring-webhook).
 
 ---
 

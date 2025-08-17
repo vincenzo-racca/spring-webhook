@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("simulate")
+@RestController
 public class SimulatorController {
 
     private final ShipmentProducer shipmentProducer;

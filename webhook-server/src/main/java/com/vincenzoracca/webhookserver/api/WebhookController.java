@@ -21,8 +21,8 @@ public class WebhookController {
 
     @PostMapping
     public ResponseEntity<Webhook> registerWebhook(@RequestBody WebhookRegistrationRequest request) {
-        var client = webhookService.registerWebhook(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(client);
+        var webhook = webhookService.registerWebhook(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(webhook);
     }
 
 

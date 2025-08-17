@@ -20,7 +20,7 @@ public class SecurityClientUtil {
     public boolean isInToleranceTime(long requestTimestamp) {
         long now = Instant.now().toEpochMilli();
 //        var delayNow = Instant.ofEpochMilli(now).plus(10, ChronoUnit.MINUTES).toEpochMilli();
-//        return delayNow - requestTimestamp <= TOLETANCE_MINUTES.toMillis();
+//        return delayNow - requestTimestamp <= TOLETANCE_MINUTES.toMillis(); // for testing KO
         return now - requestTimestamp <= TOLETANCE_MINUTES.toMillis();
     }
 
