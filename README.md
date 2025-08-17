@@ -17,7 +17,7 @@ This project is a companion demo for my book [Spring Boot 3 API Mastery](https:/
 ## ✨ Features
 
 - **In-memory storage** (no DB required).
-- **Client registration**: consumers register their callback URL and which events they are interested in (`ALL`, `COMPLETED`, `CANCELED`).
+- **Webhook registration**: consumers register their callback URL and which events they are interested in (`ALL`, `COMPLETED`, `CANCELED`).
 - **Event publishing**: server generates shipment events and delivers them to subscribed clients.
 - **HTTP retry with backoff**: retries are automatically performed on delivery failures.
 - **Idempotency**: client ignores duplicate events (same `eventId`).
@@ -44,62 +44,64 @@ spring-webhook/
 │   ├── mvnw
 │   ├── mvnw.cmd
 │   ├── pom.xml
-│   ├── src
-│   │   ├── main
-│   │   │   ├── java
-│   │   │   │   └── com
-│   │   │   │       └── vincenzoracca
-│   │   │   │           └── webhookclient
-│   │   │   │               ├── WebhookClientApplication.java
-│   │   │   │               ├── api
-│   │   │   │               │   └── WebhookController.java
-│   │   │   │               ├── dao
-│   │   │   │               │   ├── ShipmentEventDao.java
-│   │   │   │               │   └── impl
-│   │   │   │               │       └── ShipmentEventInMemoryDao.java
-│   │   │   │               ├── model
-│   │   │   │               │   └── ShipmentEvent.java
-│   │   │   │               ├── service
-│   │   │   │               │   └── WebhookClientService.java
-│   │   │   │               └── util
-│   │   │   │                   └── SecurityClientUtil.java
-│   │   │   └── resources
-│   │   │       ├── application.properties
-│   │   │       ├── static
-│   │   │       └── templates
+│   └── src
+│       ├── main
+│       │   ├── java
+│       │   │   └── com
+│       │   │       └── vincenzoracca
+│       │   │           └── webhookclient
+│       │   │               ├── WebhookClientApplication.java
+│       │   │               ├── api
+│       │   │               │   └── ShipmentNotificationController.java
+│       │   │               ├── dao
+│       │   │               │   ├── ShipmentEventDao.java
+│       │   │               │   └── impl
+│       │   │               │       └── ShipmentEventInMemoryDao.java
+│       │   │               ├── model
+│       │   │               │   └── ShipmentEvent.java
+│       │   │               ├── service
+│       │   │               │   ├── ShipmentConsumer.java
+│       │   │               │   └── impl
+│       │   │               │       └── ShipmentWebhookConsumer.java
+│       │   │               └── util
+│       │   │                   └── SecurityClientUtil.java
+│       │   └── resources
+│       │       ├── application.properties
 └── webhook-server
-├── HELP.md
-├── mvnw
-├── mvnw.cmd
-├── pom.xml
-├── src
-│   ├── main
-│   │   ├── java
-│   │   │   └── com
-│   │   │       └── vincenzoracca
-│   │   │           └── webhookserver
-│   │   │               ├── WebhookServerApplication.java
-│   │   │               ├── api
-│   │   │               │   └── ClientController.java
-│   │   │               ├── config
-│   │   │               │   └── AppConfig.java
-│   │   │               ├── dao
-│   │   │               │   ├── ClientRegistrationDao.java
-│   │   │               │   └── impl
-│   │   │               │       └── ClientRegistrationInMemoryDao.java
-│   │   │               ├── model
-│   │   │               │   ├── ClientRegistration.java
-│   │   │               │   ├── ClientRegistrationRequest.java
-│   │   │               │   └── ShipmentEvent.java
-│   │   │               ├── service
-│   │   │               │   └── WebhookServerService.java
-│   │   │               └── util
-│   │   │                   ├── ClientInvoker.java
-│   │   │                   └── SecurityServerUtil.java
-│   │   └── resources
-│   │       ├── application.properties
-│   │       ├── static
-│   │       └── templates
+    ├── HELP.md
+    ├── mvnw
+    ├── mvnw.cmd
+    ├── pom.xml
+    └── src
+        ├── main
+        │   ├── java
+        │   │   └── com
+        │   │       └── vincenzoracca
+        │   │           └── webhookserver
+        │   │               ├── WebhookServerApplication.java
+        │   │               ├── api
+        │   │               │   ├── SimulatorController.java
+        │   │               │   └── WebhookController.java
+        │   │               ├── config
+        │   │               │   └── AppConfig.java
+        │   │               ├── dao
+        │   │               │   ├── WebhookDao.java
+        │   │               │   └── impl
+        │   │               │       └── WebhookInMemoryDao.java
+        │   │               ├── model
+        │   │               │   ├── ShipmentEvent.java
+        │   │               │   ├── Webhook.java
+        │   │               │   └── WebhookRegistrationRequest.java
+        │   │               ├── service
+        │   │               │   ├── ShipmentProducer.java
+        │   │               │   └── impl
+        │   │               │       ├── ShipmentWebhookProducer.java
+        │   │               │       └── WebhookService.java
+        │   │               └── util
+        │   │                   ├── ClientInvoker.java
+        │   │                   └── SecurityServerUtil.java
+        │   └── resources
+        │       ├── application.properties
 ```
 
 ---
@@ -122,12 +124,12 @@ Client will start on http://localhost:8081
 
 ## 🧪 Try it out
 
-### 1. Register a client
+### 1. Register a webhook
 ```bash
-curl --location 'localhost:8080/clients' \
+curl --location 'localhost:8080/webhooks' \
 --header 'Content-Type: application/json' \
 --data '{
-    "callbackUrl": "http://localhost:8081/webhook",
+    "callbackUrl": "http://localhost:8081/shipment-notifications",
     "eventFilter": "COMPLETED"
 }'
 ```
@@ -135,7 +137,7 @@ curl --location 'localhost:8080/clients' \
 
 ### 2. Simulate an event
 ```bash
-curl --location 'localhost:8080/clients/simulate' \
+curl --location 'localhost:8080/simulate' \
 --header 'Content-Type: application/json' \
 --data '{
     "eventId": "20250817",
