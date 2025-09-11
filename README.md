@@ -30,7 +30,7 @@ sequenceDiagram
     end
 
     WebhookServer ->> WebhookClient: POST /shipment-notifications
-    WebhookClient -->> WebhookServer: 200 OK
+    WebhookClient -->> WebhookServer: 202 Accepted
 ```
 
 Figure 1 - Webhook flow - client registers, server sends events
@@ -181,7 +181,7 @@ curl --location 'localhost:8080/simulate' \
 }'
 ```
 
-The HTTP response will be `204 OK`.
+The HTTP response will be `204 No Content`.
 
 ➡️ The client receives the webhook, verifies signature + timestamp, and processes the event.
 
