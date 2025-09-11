@@ -12,7 +12,29 @@ This project is a companion demo for my book [Spring Boot 3 API Mastery](https:/
 - In the book, I focus more on Publisher/Subscriber patterns (Kafka, async).
 - Here, the blog/demo complements it by showing Webhooks as a simpler alternative: [Webhook with Spring Boot](https://www.vincenzoracca.com/en/blog/framework/spring/spring-webhook).
 
-![Block Image](webhook.webp)
+```mermaid
+sequenceDiagram
+    title Webhook shipment process
+
+    participant WebhookClient
+    participant WebhookServer
+
+    WebhookClient ->> WebhookServer: POST /webhooks (register a new webhook)
+    activate WebhookServer
+    WebhookServer ->> WebhookServer: register webhook
+    WebhookServer -->> WebhookClient: 201 Created
+    deactivate WebhookServer
+
+    rect rgb(230, 230, 230)
+        note over WebhookServer: update status of shipment
+    end
+
+    WebhookServer ->> WebhookClient: POST /shipment-notifications
+    WebhookClient -->> WebhookServer: 200 OK
+```
+
+Figure 1 - Webhook flow - client registers, server sends events
+
 ---
 
 ## ✨ Features
