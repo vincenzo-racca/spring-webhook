@@ -12,7 +12,29 @@ This project is a companion demo for my book [Spring Boot 3 API Mastery](https:/
 - In the book, I focus more on Publisher/Subscriber patterns (Kafka, async).
 - Here, the blog/demo complements it by showing Webhooks as a simpler alternative: [Webhook with Spring Boot](https://www.vincenzoracca.com/en/blog/framework/spring/spring-webhook).
 
-![Block Image](webhook.webp)
+```mermaid
+sequenceDiagram
+    title Webhook shipment process
+
+    participant WebhookClient
+    participant WebhookServer
+
+    WebhookClient ->> WebhookServer: POST /webhooks (register a new webhook)
+    activate WebhookServer
+    WebhookServer ->> WebhookServer: register webhook
+    WebhookServer -->> WebhookClient: 201 Created
+    deactivate WebhookServer
+
+    rect rgb(230, 230, 230)
+        note over WebhookServer: update status of shipment
+    end
+
+    WebhookServer ->> WebhookClient: POST /shipment-notifications
+    WebhookClient -->> WebhookServer: 202 Accepted
+```
+
+Figure 1 - Webhook flow - client registers, server sends events
+
 ---
 
 ## ✨ Features
@@ -134,6 +156,18 @@ curl --location 'localhost:8080/webhooks' \
     "eventFilter": "COMPLETED"
 }'
 ```
+
+The response will be:
+
+```json
+{
+    "webhookId": "35325894-37fa-4711-ac35-d16d04528ae9",
+    "callbackUrl": "http://localhost:8081/shipment-notifications",
+    "secret": "secret",
+    "eventFilter": "COMPLETED"
+}
+```
+
 ➡️ The server stores the subscription (in memory).
 
 ### 2. Simulate an event
@@ -146,7 +180,28 @@ curl --location 'localhost:8080/simulate' \
     "status": "COMPLETED"
 }'
 ```
+
+The HTTP response will be `204 No Content`.
+
 ➡️ The client receives the webhook, verifies signature + timestamp, and processes the event.
+
+The highlighted section shows a sample HTTP POST request sent from the server to the client to notify a shipment event. It includes headers such as Content-Type, X-Signature (HMAC signature for security), and X-Timestamp (for anti-replay protection), along with a JSON payload containing the event details. The client responds with HTTP 202, indicating successful receipt of the notification.
+
+```bash
+POST /shipment-notifications HTTP/1.1
+Host: localhost:8081
+HTTP2-Settings: AAEAAEAAAAIAAAAAAAMAAAAAAAQBAAAAAAUAAEAAAAYABgAA
+User-Agent: Java-http-client/23.0.2
+Content-Type: application/json
+X-Signature: sha256=6f8a64a66deaea10ce4a96088c918c2094cbef2385c8682326515a45a1f4588e
+X-Timestamp: 1757631792175
+
+{"eventId":"20250817","orderId":"2","status":"COMPLETED"}
+HTTP/1.1 202 
+Content-Length: 0
+Date: Thu, 11 Sep 2025 23:03:12 GMT
+```
+
 ➡️ If you repeat the same event, it will be ignored (idempotency).
 
 ## 🔐 Security Explained
